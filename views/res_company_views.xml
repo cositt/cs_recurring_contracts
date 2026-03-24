@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_company_form_cositt_contracts" model="ir.ui.view">
+        <field name="name">res.company.form.cositt.contracts</field>
+        <field name="model">res.company</field>
+        <field name="inherit_id" ref="base.view_company_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//sheet" position="inside">
+                <group string="Contratos recurrentes (Cositt)" name="cositt_contracts_defaults">
+                    <field name="cositt_auto_invoice_on_contract_sign"/>
+                </group>
+                <group string="Plantillas de documento contractual (por tipo de contrato)" name="cositt_contracts_bodies"
+                    colspan="2">
+                    <p class="text-muted" colspan="2">
+                        Cada tipo de venta/contrato usa su propio texto base; se copia al crear el contrato.
+                        Sintaxis Jinja: p. ej. <code>{{ object.partner_id.name }}</code>, <code>{{ object.company_id.name }}</code>.
+                    </p>
+                    <notebook colspan="2">
+                        <page string="Mensual" name="cositt_body_monthly">
+                            <field name="cositt_contract_body_default_monthly" colspan="2" nolabel="1" widget="html"/>
+                        </page>
+                        <page string="Anual" name="cositt_body_yearly">
+                            <field name="cositt_contract_body_default_yearly" colspan="2" nolabel="1" widget="html"/>
+                        </page>
+                        <page string="Bono horas" name="cositt_body_hours">
+                            <field name="cositt_contract_body_default_hours" colspan="2" nolabel="1" widget="html"/>
+                        </page>
+                        <page string="Puntual" name="cositt_body_punctual">
+                            <field name="cositt_contract_body_default_punctual" colspan="2" nolabel="1" widget="html"/>
+                        </page>
+                    </notebook>
+                </group>
+            </xpath>
+        </field>
+    </record>
+</odoo>

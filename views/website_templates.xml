@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="portal_contract_sign" name="Cositt: firmar contrato">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="container py-5">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-10">
+                            <h1>Firma de contrato</h1>
+                            <p class="lead"><t t-out="contract.name"/></p>
+                            <p><strong>Cliente:</strong> <t t-out="contract.partner_id.name"/></p>
+                            <p t-if="contract.company_id"><strong>Empresa emisora:</strong> <t t-out="contract.company_id.name"/></p>
+                            <p t-if="contract.amount_total">
+                                <strong>Total contrato:</strong>
+                                <t t-out="contract.amount_total"/> <t t-out="contract.currency_id.name"/>
+                            </p>
+
+                            <div class="card my-3" t-if="contract.sale_order_id">
+                                <div class="card-header"><strong>Pedido de venta vinculado</strong></div>
+                                <div class="card-body">
+                                    <p class="mb-1"><strong>Pedido:</strong> <t t-out="contract.sale_order_id.name"/></p>
+                                    <p class="mb-1" t-if="contract.sale_order_id.date_order">
+                                        <strong>Fecha del pedido:</strong>
+                                        <span t-field="contract.sale_order_id.date_order"/>
+                                    </p>
+                                    <p class="mb-1" t-if="contract.sale_order_id.client_order_ref">
+                                        <strong>Referencia cliente:</strong> <t t-out="contract.sale_order_id.client_order_ref"/>
+                                    </p>
+                                    <p class="small text-muted mb-1">Solo las líneas del pedido asignadas a este contrato:</p>
+                                    <div class="table-responsive mt-2" t-if="contract.cositt_portal_sale_line_recordset()">
+                                        <table class="table table-sm table-bordered mb-0">
+                                            <thead><tr><th>Producto</th><th>Descripción</th><th class="text-end">Cant.</th><th class="text-end">Precio</th><th class="text-end">Subtotal</th></tr></thead>
+                                            <tbody>
+                                                <t t-foreach="contract.cositt_portal_sale_line_recordset()" t-as="sol">
+                                                    <tr>
+                                                        <td><t t-out="sol.product_id.display_name"/></td>
+                                                        <td><t t-out="sol.name"/></td>
+                                                        <td class="text-end"><t t-out="sol.product_uom_qty"/></td>
+                                                        <td class="text-end"><t t-out="sol.price_unit"/></td>
+                                                        <td class="text-end"><t t-out="sol.price_subtotal"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card my-3">
+                                <div class="card-header"><strong>Detalle comercial del contrato</strong></div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive" t-if="contract.contract_line_ids">
+                                        <table class="table table-sm table-striped mb-0">
+                                            <thead><tr><th>Producto</th><th>Descripción</th><th class="text-end">Cant.</th><th class="text-end">Precio</th><th class="text-end">Subtotal</th></tr></thead>
+                                            <tbody>
+                                                <t t-foreach="contract.contract_line_ids" t-as="line">
+                                                    <tr>
+                                                        <td><t t-out="line.product_id.display_name"/></td>
+                                                        <td><t t-out="line.description"/></td>
+                                                        <td class="text-end"><t t-out="line.qty_ordered"/></td>
+                                                        <td class="text-end"><t t-out="line.price_unit"/></td>
+                                                        <td class="text-end"><t t-out="line.sub_total"/></td>
+                                                    </tr>
+                                                </t>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card my-3">
+                                <div class="card-header"><strong>Recurrencia y facturación</strong></div>
+                                <div class="card-body">
+                                    <ul class="mb-0">
+                                        <t t-foreach="contract.cositt_portal_recurrence_line_list()" t-as="rec_line">
+                                            <li><t t-out="rec_line"/></li>
+                                        </t>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div class="card my-3 border-primary" t-if="contract.contract_body_html">
+                                <div class="card-header"><strong>Condiciones contractuales</strong></div>
+                                <div class="card-body">
+                                    <div t-field="contract.contract_body_rendered" class="o_cositt_contract_body"/>
+                                </div>
+                            </div>
+
+                            <div t-if="error" class="alert alert-danger" role="alert">
+                                <t t-out="error"/>
+                            </div>
+                            <form t-attf-action="/cositt/contract/#{access_token}" method="post" class="mt-4">
+                                <div class="form-check mb-3">
+                                    <input class="form-check-input" type="checkbox" name="accept" value="1" id="accept_sign" required="required"/>
+                                    <label class="form-check-label" for="accept_sign">
+                                        He leído el documento contractual anterior y acepto sus condiciones; autorizo la firma electrónica.
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Confirmar y activar</button>
+                            </form>
+                            <p class="text-muted small mt-3">En Odoo Community (sin Odoo Sign Enterprise), esta aceptación constituye el acuerdo contractual según la configuración legal de su empresa.</p>
+                            <p class="text-muted small">Cositt Technology®</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_contract_signed_ok" name="Cositt: contrato firmado">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="container py-5">
+                    <div class="alert alert-success">
+                        <h2>Contrato activado</h2>
+                        <p>Gracias. El contrato <strong t-out="contract.name"/> ha sido registrado como firmado y la recurrencia ha quedado activada.</p>
+                        <p t-if="contract.auto_invoice_on_sign" class="mb-0">Si la facturación automática al firmar estaba activa, se ha intentado generar la primera factura; revísela en Odoo si es necesario.</p>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+
+    <template id="portal_contract_unavailable" name="Cositt: firma no disponible">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure">
+                <section class="container py-5">
+                    <div class="alert alert-warning">
+                        <h2>No es posible firmar</h2>
+                        <p t-if="reason == 'state'">Este contrato está cancelado o expirado.</p>
+                        <p t-if="reason == 'not_sent'">El enlace aún no está disponible o el contrato no ha sido enviado para firma.</p>
+                    </div>
+                </section>
+            </div>
+        </t>
+    </template>
+</odoo>

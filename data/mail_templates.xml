@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="email_template_contract_hours_alert" model="mail.template">
+            <field name="name">Alerta: Consumo de Bono de Horas</field>
+            <field name="model_id" ref="model_cositt_subscription_contract"/>
+            <field name="subject">Actualización de Bono de Horas: {{ object.name }}</field>
+            <field name="email_to">{{ object.partner_id.email_formatted }}</field>
+            <field name="body_html" type="html">
+                <div style="margin: 0px; padding: 0px;">
+                    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                        Estimado/a {{ object.partner_id.name or 'Cliente' }},<br/><br/>
+                        Le informamos sobre el estado actual de su bono de horas asociado al contrato <strong>{{ object.name }}</strong>.
+                        <br/><br/>
+                        Total de horas contratadas: <strong>{{ object.hours_total }}</strong><br/>
+                        Horas consumidas hasta la fecha: <strong>{{ object.hours_consumed }}</strong><br/>
+                        <br/>
+                        Por favor, póngase en contacto con nosotros si desea realizar una ampliación o consultar el detalle de las intervenciones.
+                        <br/><br/>
+                        Atentamente,<br/>
+                        {{ object.company_id.name }}
+                    </p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

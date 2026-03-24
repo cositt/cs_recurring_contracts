@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_cositt_subscription_contracts" model="ir.actions.act_window">
+        <field name="name">Contratos Cositt</field>
+        <field name="res_model">cositt.subscription.contract</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'default_signature_required': True}</field>
+    </record>
+
+    <menuitem id="menu_cositt_contracts_root" name="Contratos" parent="sale.sale_menu_root" sequence="50"/>
+    <menuitem id="menu_cositt_contracts" name="Contratos" parent="menu_cositt_contracts_root" action="action_cositt_subscription_contracts" sequence="10"/>
+
+    <record id="view_cositt_subscription_contracts_tree" model="ir.ui.view">
+        <field name="name">cositt.subscription.contract.list</field>
+        <field name="model">cositt.subscription.contract</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <list string="Contratos">
+                <field name="hours_bundle_exhausted" column_invisible="1"/>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="date_start"/>
+                <field name="next_invoice_date"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="sale_order_id" optional="hide"/>
+                <field name="signature_state" optional="show"/>
+                <field name="state" widget="badge" decoration-success="state == 'Ongoing'" decoration-danger="state in ('Expired', 'Cancelled') or hours_bundle_exhausted"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_cositt_subscription_contracts_form" model="ir.ui.view">
+        <field name="name">cositt.subscription.contract.form</field>
+        <field name="model">cositt.subscription.contract</field>
+        <field name="priority">100</field>
+        <field name="arch" type="xml">
+            <form string="Contrato">
+                <field name="hours_bundle_exhausted" invisible="1"/>
+                <header>
+                    <button name="action_send_for_signature" string="Enviar para firma" type="object" class="oe_highlight"
+                        invisible="not signature_required or state != 'New' or signature_state == 'signed'"/>
+                    <button name="action_to_confirm" string="Confirmar (sin firma web)" type="object" class="oe_highlight"
+                        invisible="state != 'New' or signature_required"/>
+                    <button name="action_generate_invoice" string="Generar Factura" type="object" class="oe_highlight" invisible="state not in ['Ongoing', 'Expire_Soon']"/>
+                    <button name="action_to_cancel" string="Cancelar" type="object" invisible="state not in ['New', 'Ongoing', 'Expire_Soon']"/>
+                    <button name="action_lock" string="Bloquear" type="object" invisible="lock == True" groups="sales_team.group_sale_manager"/>
+                    <button name="action_to_unlock" string="Desbloquear" type="object" invisible="lock == False" groups="sales_team.group_sale_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="New,Ongoing,Expired,Cancelled"/>
+                </header>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_get_invoice" type="object" class="oe_stat_button" icon="fa-pencil-square-o">
+                            <field name="invoice_count" widget="statinfo" string="Facturas"/>
+                        </button>
+                    </div>
+                    <div class="oe_title">
+                        <h1><field name="name" readonly="lock == True"/></h1>
+                    </div>
+                    <group>
+                        <group string="Contrato">
+                            <field name="partner_id" readonly="lock == True"/>
+                            <field name="signature_required" widget="boolean_toggle" readonly="lock == True"
+                                help="Si está activo, use «Enviar para firma» en la cabecera. Si lo desactiva, use «Confirmar (sin firma web)»."/>
+                            <field name="auto_invoice_on_sign" readonly="lock == True"
+                                help="Si está activo, al firmar en el portal se genera y publica la primera factura de cliente. El valor por defecto se define en la ficha de la empresa."/>
+                            <field name="contract_type" widget="radio" options="{'horizontal': true}" readonly="lock == True"/>
+                            <field name="invoice_day" invisible="contract_type in ['punctual', 'hours']" readonly="lock == True"/>
+                            <field name="reference" readonly="lock == True"/>
+                            <field name="sale_order_id" readonly="1" invisible="not sale_order_id"/>
+                            <field name="parent_contract_id" readonly="1" invisible="not parent_contract_id"/>
+                        </group>
+                        <group string="Firma electrónica (Community)">
+                            <field name="signature_state" readonly="1"/>
+                            <field name="signed_on" invisible="signature_state != 'signed'"/>
+                            <field name="signed_ip" invisible="signature_state != 'signed'"/>
+                            <field name="signed_user_agent" invisible="signature_state != 'signed'"/>
+                            <field name="signature_evidence_hash" invisible="signature_state != 'signed'"/>
+                            <field name="signature_attachment_id" invisible="signature_state != 'signed'" readonly="1"/>
+                            <field name="signature_report_url" widget="url" readonly="1" invisible="signature_state != 'signed'"
+                                help="Descarga/vista del informe PDF. También use el menú Imprimir (⚙) del formulario: «Constancia de firma / aceptación»."/>
+                            <field name="sign_url" widget="url" readonly="1" invisible="signature_state not in ('sent', 'signed')"
+                                help="Tras enviar a firma, copie este enlace para probar en el navegador (p. ej. localhost) si el correo no se entrega."/>
+                        </group>
+                        <group>
+                            <field name="date_start" readonly="lock == True"/>
+                            <field name="date_end" readonly="lock == True"/>
+                            <field name="recurring_invoice" string="Frecuencia (Días)" invisible="contract_type in ['monthly', 'yearly']" readonly="lock == True"/>
+                            <field name="next_invoice_date" readonly="lock == True"/>
+                            <field name="contract_reminder" readonly="lock == True"/>
+                            <field name="lock" invisible="1"/>
+                            <field name="company_id" invisible="1"/>
+                            <field name="currency_id" invisible="1"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page name="lines" string="Líneas">
+                            <field name="contract_line_ids" readonly="lock == True">
+                                <list editable="bottom">
+                                    <field name="product_id"/>
+                                    <field name="description"/>
+                                    <field name="qty_ordered"/>
+                                    <field name="product_uom_id"/>
+                                    <field name="price_unit"/>
+                                    <field name="discount"/>
+                                    <field name="tax_ids" widget="many2many_tags"/>
+                                    <field name="sub_total" sum="Subtotal"/>
+                                    <field name="currency_id" invisible="1"/>
+                                </list>
+                            </field>
+                            <group class="oe_subtotal_footer oe_right" colspan="2">
+                                <field name="amount_total" widget="monetary" options="{'currency_field': 'currency_id'}"/>
+                            </group>
+                        </page>
+                        <page name="hours" string="Bono de Horas" invisible="contract_type != 'hours'">
+                            <group>
+                                <field name="hours_total" readonly="lock == True"/>
+                                <field name="hours_consumed" readonly="1"/>
+                                <field name="project_id" readonly="1"/>
+                            </group>
+                        </page>
+                        <page name="contract_document" string="Documento contractual">
+                            <div class="alert alert-info mb-3" role="status">
+                                <p class="mb-1">El texto por defecto según el <strong>tipo</strong> del contrato se define en la ficha de la <strong>empresa</strong> (cuatro plantillas: mensual, anual, bono horas, puntual).</p>
+                                <p class="mb-1"><strong>Datos dinámicos (Jinja)</strong> — use <code>object</code> como el contrato. Ejemplos:</p>
+                                <ul class="mb-0 small">
+                                    <li><code>{{ object.partner_id.name }}</code>, <code>{{ object.partner_id.vat }}</code>, <code>{{ object.partner_id.email }}</code></li>
+                                    <li><code>{{ object.partner_id.street }}</code>, <code>{{ object.partner_id.city }}</code>, <code>{{ object.partner_id.zip }}</code></li>
+                                    <li><code>{{ object.name }}</code>, <code>{{ object.reference }}</code>, <code>{{ object.date_start }}</code>, <code>{{ object.date_end }}</code></li>
+                                    <li><code>{{ object.amount_total }}</code>, <code>{{ object.currency_id.name }}</code>, <code>{{ object.company_id.name }}</code></li>
+                                    <li><code>{{ object.sale_order_id.name }}</code> (si hay pedido vinculado)</li>
+                                </ul>
+                            </div>
+                            <field name="contract_body_html" widget="html" readonly="lock == True" colspan="2"
+                                options="{'collaborative': false}"/>
+                            <separator string="Vista previa (como verá el cliente al firmar)"/>
+                            <field name="contract_body_rendered" widget="html" nolabel="1" colspan="2" readonly="1"/>
+                        </page>
+                        <page name="terms" string="Notas">
+                            <field name="note" readonly="lock == True"/>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>

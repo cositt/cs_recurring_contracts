@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_order_form_cositt_contracts" model="ir.ui.view">
+        <field name="name">sale.order.form.cositt.contracts</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_cositt_open_contracts" type="object" class="oe_stat_button" icon="fa-file-text-o" invisible="cositt_contract_count == 0">
+                    <field name="cositt_contract_count" widget="statinfo" string="Contratos"/>
+                </button>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_cositt_send_contracts_for_signature" string="Enviar contratos para firma" type="object" class="oe_highlight"
+                    invisible="state != 'sale' or cositt_contract_count == 0"/>
+            </xpath>
+            <xpath expr="//field[@name='payment_term_id']" position="after">
+                <field name="cositt_contract_grouping" readonly="state in ('sale', 'done', 'cancel')"/>
+            </xpath>
+            <xpath expr="//notebook" position="inside">
+                <page string="Contratos recurrentes" name="cositt_contracts" invisible="state not in ('sale', 'done')">
+                    <group>
+                        <p class="text-muted" colspan="2" invisible="cositt_contract_count != 0">
+                            Tras confirmar el presupuesto, si hay productos recurrentes se generan los contratos aquí. Use «Enviar contratos para firma» en la cabecera para enviar los enlaces al cliente.
+                        </p>
+                    </group>
+                    <field name="cositt_contract_ids" nolabel="1" readonly="1" colspan="2">
+                        <list>
+                            <field name="name"/>
+                            <field name="parent_contract_id" optional="show"/>
+                            <field name="signature_state"/>
+                            <field name="state"/>
+                            <field name="amount_total"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="view_sale_order_line_cositt_parent" model="ir.ui.view">
+        <field name="name">sale.order.form.line.cositt.parent</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='order_line']//list//field[@name='product_id']" position="after">
+                <field name="cositt_parent_line_id" optional="hide"
+                    domain="[('order_id', '=', order_id), ('id', '!=', id), ('product_id.product_tmpl_id.cositt_recurring_contract', '=', True)]"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

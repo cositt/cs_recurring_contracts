@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_signature_evidence">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <div class="article" style="font-size:11pt;padding:20px;font-family:Helvetica,Arial,sans-serif;">
+                    <h2 style="margin-top:0;">Constancia de aceptación contractual</h2>
+                    <p>Documento generado automáticamente al aceptar el contrato en el portal web. Incluye datos de conexión registrados en el momento del envío del formulario.</p>
+                    <table style="width:100%;border-collapse:collapse;margin:16px 0;font-size:10pt;">
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;width:32%;"><strong>Empresa</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.company_id.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;"><strong>Contrato</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;"><strong>Cliente</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.partner_id.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;"><strong>Importe total</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.amount_total"/> <span t-esc="o.currency_id.name"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;"><strong>Fecha y hora (UTC servidor)</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.signed_on"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;"><strong>Dirección IP</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;"><span t-esc="o.signed_ip or '-'"/></td>
+                        </tr>
+                        <tr>
+                            <td style="padding:6px;border:1px solid #ccc;vertical-align:top;"><strong>Navegador (User-Agent)</strong></td>
+                            <td style="padding:6px;border:1px solid #ccc;word-break:break-all;"><span t-esc="o.signed_user_agent or '-'"/></td>
+                        </tr>
+                    </table>
+                    <p><strong>Huella de evidencia (SHA-256):</strong><br/><span style="font-family:monospace;font-size:9pt;" t-esc="o.signature_evidence_hash or ''"/></p>
+                    <p style="font-size:9pt;color:#555;">Esta constancia no sustituye por sí sola una firma electrónica cualificada (Reglamento eIDAS). Valor probatorio y obligaciones concretas dependen del ordenamiento aplicable y del asesoramiento jurídico.</p>
+                    <p style="font-size:9pt;margin-top:28px;">Cositt Technology®</p>
+                </div>
+            </t>
+        </t>
+    </template>
+</odoo>

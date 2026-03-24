@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="mail_template_contract_sign_request" model="mail.template">
+            <field name="name">Contrato Cositt: solicitud de firma</field>
+            <field name="model_id" ref="model_cositt_subscription_contract"/>
+            <field name="subject">{{ object.company_id.name }}: firma del contrato {{ object.name }}</field>
+            <field name="email_to">{{ object.partner_id.email }}</field>
+            <field name="body_html" type="html">
+                <div style="padding:16px;font-family:sans-serif;">
+                    <p>Hola {{ object.partner_id.name or 'Cliente' }},</p>
+                    <p>Para <strong>activar</strong> el contrato <strong>{{ object.name }}</strong>, abra el enlace y acepte las condiciones:</p>
+                    <p style="margin:24px 0;">
+                        <a href="{{ object.sign_url }}" style="background:#714B67;color:#fff;padding:12px 20px;text-decoration:none;border-radius:4px;display:inline-block;">Firmar contrato</a>
+                    </p>
+                    <p style="color:#666;font-size:12px;">Si no funciona el botón, copie y pegue esta dirección en el navegador:<br/>
+                    {{ object.sign_url }}</p>
+                    <p>Saludos,<br/>{{ object.company_id.name }}</p>
+                </div>
+            </field>
+        </record>
+    </data>
+</odoo>

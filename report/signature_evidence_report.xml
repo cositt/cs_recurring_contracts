@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_signature_evidence" model="ir.actions.report">
+        <field name="name">Constancia de firma / aceptación</field>
+        <field name="model">cositt.subscription.contract</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">cositt_contracts.report_signature_evidence</field>
+        <field name="report_file">cositt_contracts.report_signature_evidence</field>
+        <field name="print_report_name">'Constancia_%s' % (object.name or object.id)</field>
+        <field name="binding_model_id" ref="model_cositt_subscription_contract"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
