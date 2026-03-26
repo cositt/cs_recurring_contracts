@@ -3,6 +3,7 @@
     'version': '19.0.2.0.35',
     'category': 'Sales',
     'summary': 'Gestor de Contratos Recurrentes',
+    'images': ['static/description/icon.png'],
     'author': 'Cositt / Gerard Perat',
     'depends': [
         'website',
