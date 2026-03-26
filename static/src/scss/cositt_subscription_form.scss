@@ -1,0 +1,27 @@
+/* Formulario contrato recurrente (Cositt).
+
+   Problema raíz: Odoo 19 activa flex-direction:row en el renderer en pantallas
+   grandes (comportamiento Enterprise), el chatter se expande a ~1600px y aplasta
+   el sheet a 33px.
+
+   Solución: forzar flex-direction:column para que el chatter quede debajo del
+   form (comportamiento estándar Community). El resto de estilos quedan en
+   default de Odoo para no romper el alineado. */
+
+.o_cositt_subscription_contract_form {
+
+    /* Mantener layout en columna siempre */
+    .o_form_renderer {
+        flex-direction: column !important;
+    }
+
+    /* Evitar overflow horizontal en listas x2many */
+    .o_field_x2many .o_list_renderer {
+        min-width: 0;
+        overflow-x: auto;
+    }
+
+    .o_field_x2many .o_list_table {
+        max-width: 100%;
+    }
+}

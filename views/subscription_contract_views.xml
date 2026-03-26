@@ -17,6 +17,10 @@
         <field name="arch" type="xml">
             <list string="Contratos">
                 <field name="hours_bundle_exhausted" column_invisible="1"/>
+                <field name="signature_required" column_invisible="1"/>
+                <button name="action_send_for_signature" string="Enviar firma" type="object" icon="fa-send"
+                    title="Envía o reenvía el correo con el enlace de firma (misma acción que en el formulario)."
+                    invisible="not signature_required or state != 'New' or signature_state == 'signed'"/>
                 <field name="name"/>
                 <field name="partner_id"/>
                 <field name="date_start"/>
@@ -24,6 +28,7 @@
                 <field name="amount_total" sum="Total"/>
                 <field name="sale_order_id" optional="hide"/>
                 <field name="signature_state" optional="show"/>
+                <field name="sign_url" string="Enlace firma" optional="hide" widget="url"/>
                 <field name="state" widget="badge" decoration-success="state == 'Ongoing'" decoration-danger="state in ('Expired', 'Cancelled') or hours_bundle_exhausted"/>
             </list>
         </field>
@@ -34,7 +39,7 @@
         <field name="model">cositt.subscription.contract</field>
         <field name="priority">100</field>
         <field name="arch" type="xml">
-            <form string="Contrato">
+            <form string="Contrato" class="o_cositt_subscription_contract_form">
                 <field name="hours_bundle_exhausted" invisible="1"/>
                 <header>
                     <button name="action_send_for_signature" string="Enviar para firma" type="object" class="oe_highlight"
@@ -56,6 +61,7 @@
                     <div class="oe_title">
                         <h1><field name="name" readonly="lock == True"/></h1>
                     </div>
+                    <!-- Máx. 2 columnas por fila: en XL, 3 grupos hermanos estiraban el flex y tapaban la cabecera. -->
                     <group>
                         <group string="Contrato">
                             <field name="partner_id" readonly="lock == True"/>
@@ -81,16 +87,16 @@
                             <field name="sign_url" widget="url" readonly="1" invisible="signature_state not in ('sent', 'signed')"
                                 help="Tras enviar a firma, copie este enlace para probar en el navegador (p. ej. localhost) si el correo no se entrega."/>
                         </group>
-                        <group>
-                            <field name="date_start" readonly="lock == True"/>
-                            <field name="date_end" readonly="lock == True"/>
-                            <field name="recurring_invoice" string="Frecuencia (Días)" invisible="contract_type in ['monthly', 'yearly']" readonly="lock == True"/>
-                            <field name="next_invoice_date" readonly="lock == True"/>
-                            <field name="contract_reminder" readonly="lock == True"/>
-                            <field name="lock" invisible="1"/>
-                            <field name="company_id" invisible="1"/>
-                            <field name="currency_id" invisible="1"/>
-                        </group>
+                    </group>
+                    <group string="Vigencia y facturación">
+                        <field name="date_start" readonly="lock == True"/>
+                        <field name="date_end" readonly="lock == True"/>
+                        <field name="recurring_invoice" string="Frecuencia (Días)" invisible="contract_type in ['monthly', 'yearly']" readonly="lock == True"/>
+                        <field name="next_invoice_date" readonly="lock == True"/>
+                        <field name="contract_reminder" readonly="lock == True"/>
+                        <field name="lock" invisible="1"/>
+                        <field name="company_id" invisible="1"/>
+                        <field name="currency_id" invisible="1"/>
                     </group>
                     <notebook>
                         <page name="lines" string="Líneas">
@@ -139,12 +145,14 @@
                             <field name="note" readonly="lock == True"/>
                         </page>
                     </notebook>
+
+                    <separator string="Actividades"/>
+                    <field name="activity_ids" nolabel="1"/>
+
+                    <separator string="Historial"/>
+                    <field name="message_ids" readonly="1" nolabel="1"/>
+
                 </sheet>
-                <div class="oe_chatter">
-                    <field name="message_follower_ids"/>
-                    <field name="activity_ids"/>
-                    <field name="message_ids"/>
-                </div>
             </form>
         </field>
     </record>
