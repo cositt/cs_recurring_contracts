@@ -249,21 +249,25 @@ class ResCompany(models.Model):
     cositt_contract_body_default_monthly = fields.Html(
         string='Plantilla: contratos mensuales',
         translate=True,
+        sanitize=False,
         help='Se aplica a contratos con tipo «Mensual». Jinja: {{ object.partner_id.name }}, {{ object.amount_total }}, etc.',
     )
     cositt_contract_body_default_yearly = fields.Html(
         string='Plantilla: contratos anuales',
         translate=True,
+        sanitize=False,
         help='Se aplica a contratos con tipo «Anual».',
     )
     cositt_contract_body_default_hours = fields.Html(
         string='Plantilla: bonos / paquetes de horas',
         translate=True,
+        sanitize=False,
         help='Se aplica a contratos con tipo «Bono Horas».',
     )
     cositt_contract_body_default_punctual = fields.Html(
         string='Plantilla: contratos puntuales',
         translate=True,
+        sanitize=False,
         help='Se aplica a contratos con tipo «Puntual».',
     )
 

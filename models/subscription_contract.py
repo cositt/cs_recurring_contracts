@@ -241,7 +241,7 @@ class CosittSubscriptionContract(models.Model):
                     rec.ids,
                     engine='inline_template',
                 )
-                rec.contract_body_rendered = out.get(rec.id) or ''
+                rec.contract_body_rendered = Markup(out.get(rec.id) or '')
             except Exception as err:
                 _logger.warning(
                     'cositt_contracts: no se pudo renderizar contract_body_html (id=%s): %s', rec.id, err
