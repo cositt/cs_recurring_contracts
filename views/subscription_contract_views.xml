@@ -145,14 +145,8 @@
                             <field name="note" readonly="lock == True"/>
                         </page>
                     </notebook>
-
-                    <separator string="Actividades"/>
-                    <field name="activity_ids" nolabel="1"/>
-
-                    <separator string="Historial"/>
-                    <field name="message_ids" readonly="1" nolabel="1"/>
-
                 </sheet>
+                <chatter/>
             </form>
         </field>
     </record>

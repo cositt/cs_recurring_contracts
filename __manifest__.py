@@ -1,6 +1,6 @@
 {
     'name': 'Contratos Recurrentes a Medida (Cositt)',
-    'version': '19.0.2.0.30',
+    'version': '19.0.2.0.35',
     'category': 'Sales',
     'summary': 'Gestor de Contratos Recurrentes',
     'author': 'Cositt / Gerard Perat',
@@ -15,6 +15,11 @@
         'hr_timesheet',
         'sale_project',
     ],
+    'assets': {
+        'web.assets_backend': [
+            'cositt_contracts/static/src/scss/cositt_subscription_form.scss',
+        ],
+    },
     'data': [
         'security/ir.model.access.csv',
         'views/res_company_views.xml',

@@ -165,11 +165,27 @@ class SaleOrder(models.Model):
         self.ensure_one()
         if self.state != 'sale':
             raise UserError(_('El pedido debe estar confirmado.'))
+        # Incluye «pending» (primer envío) y «sent» (reenvío del correo / enlace).
         to_send = self.cositt_contract_ids.filtered(
-            lambda c: c.signature_required and c.state == 'New' and c.signature_state == 'pending'
+            lambda c: c.signature_required
+            and c.state == 'New'
+            and c.signature_state in ('pending', 'sent')
         )
         if not to_send:
-            raise UserError(_('No hay contratos pendientes de envío a firma (estado Nuevo y firma pendiente).'))
+            lines = [
+                '- %s (contrato: %s, firma: %s)' % (c.name, c.state, c.signature_state)
+                for c in self.cositt_contract_ids
+            ]
+            detail = '\n'.join(lines) if lines else _('(sin contratos vinculados)')
+            raise UserError(
+                _(
+                    'Ningún contrato cumple las condiciones para envío desde el pedido.\n\n'
+                    'Se envían contratos en estado «Nuevo», con firma requerida, y firma '
+                    '«Pendiente» o «Enviado al cliente» (para reenviar el correo).\n\n'
+                    'Contratos de este pedido:\n%s'
+                )
+                % detail
+            )
         for c in to_send:
             c.action_send_for_signature()
         return True

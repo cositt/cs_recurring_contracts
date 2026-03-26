@@ -3,9 +3,11 @@ import base64
 import hashlib
 import logging
 import secrets
+from markupsafe import Markup
+
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from odoo.tools import format_date
+from odoo.tools import format_date, html_escape
 from datetime import date
 from dateutil.relativedelta import relativedelta
 
@@ -440,10 +442,22 @@ class CosittSubscriptionContract(models.Model):
         if not self.access_token:
             vals['access_token'] = secrets.token_urlsafe(32)
         self.write(vals)
+        public_url = self._get_public_sign_url()
         template = self.env.ref('cositt_contracts.mail_template_contract_sign_request', raise_if_not_found=False)
         if template:
             template.send_mail(self.id, force_send=True)
-        self.message_post(body=_('Enlace de firma enviado al cliente.'))
+        # Nota interna con URL clicable: el correo puede no entregarse en dev; así siempre queda trazabilidad.
+        body = Markup(
+            '<p>%s</p><p><strong><a href="%s" target="_blank" rel="noopener noreferrer">%s</a></strong></p>'
+        ) % (
+            _(
+                'Solicitud de firma procesada (envío de correo según servidor SMTP). '
+                'Enlace público de firma (copiar o abrir en navegador privado para probar):'
+            ),
+            html_escape(public_url),
+            html_escape(public_url),
+        )
+        self.message_post(body=body, subtype_xmlid='mail.mt_note')
         return True
 
     def _compute_signature_evidence_hash(self, signed_on_dt, ip, user_agent):
